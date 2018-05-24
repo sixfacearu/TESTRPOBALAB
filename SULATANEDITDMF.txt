@@ -1,0 +1,77 @@
+pragma solidity ^0.4.20;
+import "./SafeMath.sol";
+import "./FundToken.sol";
+
+contract dmf{
+ using SafeMath for uint256;
+address owner;
+address public fundtokenAddress;
+uint256 public contractEther;
+address[]  totalPortfolioAddress;
+
+    
+    constructor()public{
+   
+      fundtokenAddress=new FundToken();
+      owner=msg.sender;
+      
+        
+    }
+    
+    struct portfolioManager{
+        uint256 stakeEther;
+        uint256 tokenCount;
+        
+        uint256 investerEther;
+  address[] investerAddress;
+        
+     }
+    struct invetserDetail{
+     // address[] portfolioHolders;
+        uint256 tokenCount;
+        uint256 stakeEther; 
+        
+    }
+    mapping(address=>portfolioManager)public  portfolio;
+     mapping(address=>mapping(address=>invetserDetail))public invester;
+    
+    
+    
+    function portfolioRegister()public payable{
+        require(msg.value>= 10 ether);
+        uint256 token=(msg.value).div(0.001 ether);
+        FundToken(fundtokenAddress).transferFrom(owner,msg.sender,token);
+       portfolio[msg.sender].stakeEther=msg.value;
+        portfolio[msg.sender].tokenCount=token;
+        totalPortfolioAddress.push(msg.sender);
+        }
+        
+        function investerRegistration(address portfoilioAddress)public payable{
+            require(msg.value>=0.01 ether);
+            portfolio[portfoilioAddress].investerEther= portfolio[portfoilioAddress].investerEther.add(msg.value);
+            require(portfolio[portfoilioAddress].investerEther<=portfolio[portfoilioAddress].stakeEther);
+
+            
+            portfoilioAddress.transfer(msg.value);
+            uint256 token=(msg.value)/0.01 ether;
+            FundToken(fundtokenAddress).transferFrom(portfoilioAddress,msg.sender,token);
+            
+            invester[msg.sender][portfoilioAddress].stakeEther=msg.value;
+            invester[msg.sender][portfoilioAddress].tokenCount=token;
+            
+        }   
+        function contractEtherBalance()public view returns(uint256){
+            
+            return (this.balance);
+        }
+        
+        function returnFundTokenToPortfolio()public {
+             
+            
+            
+            
+        }
+    
+    
+    
+}   
