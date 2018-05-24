@@ -1,0 +1,68 @@
+pragma solidity ^0.4.20;
+import "./FundToken.sol";
+
+contract FinalDMF{
+    
+    address owner;
+    uint256 fundTKR = 0.001 ether;
+    uint256 investTKR = 0.1 ether;
+    address fundtokenAddress;
+    uint256 initial_PM = 0;
+    
+    function FinalDMF()
+    {
+        owner = msg.sender;
+        fundtokenAddress=new FundToken();
+    }
+    
+    mapping(address => uint256) public PortfolioManagerSTTOEH; //staked Total ether by the PortfolioManager
+    mapping(address => uint256) public PortfolioManagerSTGVDMF; //staked ether on DMF giving certain restriction by portfoliomanager
+    mapping(address => uint256) public PortfolioManagerOWNETH; //accesssable ether by the portfoliomanager 
+    mapping(uint256 => address) public PortfolioManagerlist; //adding the more portfoliomanager to maintain as a list
+    mapping(address => uint256) public ReturnPortMAddress; // returning the portfoliomanager address 
+    
+    //Mapping for tracking all the details about the investor
+    
+    struct InvestorDetails{
+        uint256 inves_eth;
+        uint256 total_TokGet;
+        uint256 EthSpend;
+    }
+    
+    mapping(address => mapping(address => InvestorDetails)) public invester;  //tracking the investor details 
+    
+    //PortfolioManager Registration
+    
+    function PortfolioReg() public payable{
+        
+        uint256 minTK = (msg.value) / fundTKR;
+        FundToken(fundtokenAddress).mintToken(msg.sender,minTK);
+        PortfolioManagerSTTOEH[msg.sender] = (msg.value / 1 ether);
+        uint256 split = (msg.value) / 1 ether;
+        uint256 hunPer = split / 100;
+        uint256 twenPer = hunPer * 20;
+        uint256 eighPer = hunPer * 80;
+        PortfolioManagerSTGVDMF[msg.sender] = twenPer;
+        PortfolioManagerOWNETH[msg.sender] = eighPer;
+        initial_PM = initial_PM + 1;
+        PortfolioManagerlist[initial_PM] = msg.sender;
+        ReturnPortMAddress[msg.sender] = initial_PM;
+        }
+        
+        //Function For Getting the Contract Ether Balance 
+        function GetBal()public view returns(uint256)
+        {
+            return address(this).balance;
+        }
+    
+    //Investing the ether on portfoliomanager and get the fundtoken 
+    
+    function InvesterGetToken(address _add_) public payable {
+        
+        
+        
+    }
+   
+    
+    
+}
