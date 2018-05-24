@@ -1,5 +1,6 @@
 pragma solidity ^0.4.20;
 import "./FundToken.sol";
+import "./DostrixToken.sol";
 
 contract FinalDMF{
     
@@ -20,7 +21,9 @@ contract FinalDMF{
     mapping(address => uint256) public PortfolioManagerSTGVDMF; //staked ether on DMF giving certain restriction by portfoliomanager
     mapping(address => uint256) public PortfolioManagerOWNETH; //accesssable ether by the portfoliomanager 
     mapping(uint256 => address) public PortfolioManagerlist; //adding the more portfoliomanager to maintain as a list
+    mapping(address => mapping(address => uint256)) public PurchaseTK;
     mapping(address => uint256) public ReturnPortMAddress; // returning the portfoliomanager address 
+    
     
     //Mapping for tracking all the details about the investor
     
@@ -76,7 +79,16 @@ contract FinalDMF{
             
         }
         }
-   
+        
+    //Function for Purchasing the Markettoken
+    
+      function purchaseToken(address buyToken,uint256 amountoftoken) public{
+            uint256 total = amountoftoken * 0.1 ether;
+            MarketToken(buyToken).transfer(address(this),amountoftoken);
+            buyToken.send(total);
+            
+        }
+        
     
     
 }
