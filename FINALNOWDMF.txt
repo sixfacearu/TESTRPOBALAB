@@ -8,6 +8,7 @@ contract FinalDMF{
     uint256 investTKR = 0.1 ether;
     address fundtokenAddress;
     uint256 initial_PM = 0;
+    uint256 initial_IV = 0;
     
     function FinalDMF()
     {
@@ -26,10 +27,12 @@ contract FinalDMF{
     struct InvestorDetails{
         uint256 inves_eth;
         uint256 total_TokGet;
-        uint256 EthSpend;
+
     }
     
     mapping(address => mapping(address => InvestorDetails)) public invester;  //tracking the investor details 
+    mapping(uint256 => address) public InvestorList; //adding the Investors into the mapping
+    mapping(address => uint256) public ReturnINAddress; //returning the Investor address 
     
     //PortfolioManager Registration
     
@@ -58,10 +61,21 @@ contract FinalDMF{
     //Investing the ether on portfoliomanager and get the fundtoken 
     
     function InvesterGetToken(address _add_) public payable {
-        
-        
-        
-    }
+        uint256 check = msg.value / 1 ether;
+        if(check == PortfolioManagerOWNETH[_add_] || check < PortfolioManagerOWNETH[_add_])
+        {
+            initial_IV = initial_IV + 1;
+            address(_add_).transfer(msg.value);
+            uint256 amountTK = msg.value / investTKR;
+            FundToken(fundtokenAddress).mintToken(_add_,amountTK);
+            FundToken(fundtokenAddress).tokenDecrease(_add_,amountTK);
+            invester[msg.sender][_add_].inves_eth = check;
+            invester[msg.sender][_add_].total_TokGet = amountTK;
+            InvestorList[initial_IV] = msg.sender;
+            ReturnINAddress[msg.sender] = initial_IV;
+            
+        }
+        }
    
     
     
