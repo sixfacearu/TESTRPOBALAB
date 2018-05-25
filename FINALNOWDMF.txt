@@ -11,6 +11,7 @@ contract FinalDMF{
     uint256 initial_PM = 0;
     uint256 initial_IV = 0;
     
+    
     function FinalDMF()
     {
         owner = msg.sender;
@@ -21,7 +22,7 @@ contract FinalDMF{
     mapping(address => uint256) public PortfolioManagerSTGVDMF; //staked ether on DMF giving certain restriction by portfoliomanager
     mapping(address => uint256) public PortfolioManagerOWNETH; //accesssable ether by the portfoliomanager 
     mapping(uint256 => address) public PortfolioManagerlist; //adding the more portfoliomanager to maintain as a list
-    mapping(address => mapping(address => uint256)) public PurchaseTK;
+    mapping(address => mapping(address => uint256)) public PurchaseTK; //Purchase token count by the portfoliomanager
     mapping(address => uint256) public ReturnPortMAddress; // returning the portfoliomanager address 
     
     
@@ -36,6 +37,7 @@ contract FinalDMF{
     mapping(address => mapping(address => InvestorDetails)) public invester;  //tracking the investor details 
     mapping(uint256 => address) public InvestorList; //adding the Investors into the mapping
     mapping(address => uint256) public ReturnINAddress; //returning the Investor address 
+    mapping(address => mapping(address => address)) public InvestorPortadd; //returning the portfolio address for investment 
     
     //PortfolioManager Registration
     
@@ -74,6 +76,7 @@ contract FinalDMF{
             FundToken(fundtokenAddress).tokenDecrease(_add_,amountTK);
             invester[msg.sender][_add_].inves_eth = check;
             invester[msg.sender][_add_].total_TokGet = amountTK;
+            InvestorPortadd[_add_][msg.sender] = _add_;
             InvestorList[initial_IV] = msg.sender;
             ReturnINAddress[msg.sender] = initial_IV;
             
@@ -89,6 +92,24 @@ contract FinalDMF{
             
         }
         
+        
+    //Function For Getting the Investor Balance of Tokens
+        function getBalance(address a) public view returns(uint256)
+        {
+            return FundToken(fundtokenAddress).balanceOf(a);
+        }
+        
+        //return the funtokens to portfoliomanager 
+        function ReturnTokenToPortfolioManager(address _add_,uint256 _tok) public 
+        {
+            uint256 amount = _tok * 0.1 ether;
+            uint256 reduce_eth = amount / 0.1 ether;
+            FundToken(fundtokenAddress).tokenDecrease(msg.sender,_tok);
+            FundToken(fundtokenAddress).mintToken(_add_,_tok);
+            address(_add_).transfer(amount);
+            invester[msg.sender][_add_].inves_eth =invester[msg.sender][_add_].inves_eth - reduce_eth;
+            invester[msg.sender][_add_].total_TokGet =  invester[msg.sender][_add_].total_TokGet - _tok;
+            }
     
     
 }
