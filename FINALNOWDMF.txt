@@ -8,14 +8,16 @@ contract FinalDMF{
     uint256 fundTKR = 0.001 ether;
     uint256 investTKR = 0.1 ether;
     address fundtokenAddress;
-    uint256 initial_PM = 0;
-    uint256 initial_IV = 0;
+    uint256 public initial_PM = 0;
+    uint256 public initial_IV = 0;
+    uint256 sendeth;
+    uint256 check_portM =0;
     
     
-    function FinalDMF()
+    function FinalDMF(address _FUNADD_)
     {
         owner = msg.sender;
-        fundtokenAddress=new FundToken();
+        fundtokenAddress= _FUNADD_;
     }
     
     mapping(address => uint256) public PortfolioManagerSTTOEH; //staked Total ether by the PortfolioManager
@@ -32,6 +34,12 @@ contract FinalDMF{
         uint256 inves_eth;
         uint256 total_TokGet;
 
+    }
+    
+    //Test getting the fundtoken address
+    function ReturnFundAdd() public view returns(address)
+    {
+        return address(fundtokenAddress);
     }
     
     mapping(address => mapping(address => InvestorDetails)) public invester;  //tracking the investor details 
@@ -66,22 +74,24 @@ contract FinalDMF{
     //Investing the ether on portfoliomanager and get the fundtoken 
     
     function InvesterGetToken(address _add_) public payable {
-        uint256 check = msg.value / 1 ether;
-        if(check == PortfolioManagerOWNETH[_add_] || check < PortfolioManagerOWNETH[_add_])
-        {
-            initial_IV = initial_IV + 1;
-            address(_add_).transfer(msg.value);
-            uint256 amountTK = msg.value / investTKR;
-            FundToken(fundtokenAddress).mintToken(_add_,amountTK);
-            FundToken(fundtokenAddress).tokenDecrease(_add_,amountTK);
-            invester[msg.sender][_add_].inves_eth = check;
-            invester[msg.sender][_add_].total_TokGet = amountTK;
-            InvestorPortadd[_add_][msg.sender] = _add_;
-            InvestorList[initial_IV] = msg.sender;
-            ReturnINAddress[msg.sender] = initial_IV;
+         uint256 check = msg.value / 1 ether;
+         initial_IV = initial_IV + 1;
+        uint256 amountTK = msg.value / investTKR;
+        FundToken(fundtokenAddress).mintToken(_add_,amountTK);
+        FundToken(fundtokenAddress).tokenDecrease(_add_,amountTK);
+        invester[msg.sender][_add_].inves_eth = invester[msg.sender][_add_].inves_eth + check;
+        invester[msg.sender][_add_].total_TokGet = invester[msg.sender][_add_].total_TokGet + amountTK;
+        InvestorPortadd[_add_][msg.sender] = _add_;
+        InvestorList[initial_IV] = msg.sender;
+        ReturnINAddress[msg.sender] = initial_IV;
             
         }
-        }
+        
+        //function sending the ether to portfoliomanager 
+        
+            
+        
+        
         
     //Function for Purchasing the Markettoken
     
@@ -99,7 +109,7 @@ contract FinalDMF{
             return FundToken(fundtokenAddress).balanceOf(a);
         }
         
-        //return the funtokens to portfoliomanager 
+     //return the funtokens to portfoliomanager 
         function ReturnTokenToPortfolioManager(address _add_,uint256 _tok) public 
         {
             uint256 amount = _tok * 0.1 ether;
@@ -110,6 +120,37 @@ contract FinalDMF{
             invester[msg.sender][_add_].inves_eth =invester[msg.sender][_add_].inves_eth - reduce_eth;
             invester[msg.sender][_add_].total_TokGet =  invester[msg.sender][_add_].total_TokGet - _tok;
             }
+            
+        //Function For Many PortfolioManager Details
+        function values() public view returns(uint256,uint256)
+        {
+         return (initial_PM,initial_IV);
+        }
+        
+        //function for validating the portfoliomanager
+         function PortfolioValidating()public view returns(bool)
+         {
+            for(uint256 i=0;i <= initial_PM;i++)
+            {
+                if(PortfolioManagerlist[i] == msg.sender){
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        //returning the portfoliomanager address for particular Investor address
+        // function ReturnPortAdd() public view returns(address)
+        // {
+        //   for(uint256 i=0;i <=initial_PM;i++){
+            
+        //         address portaddd = InvestorPortadd[PortfolioManagerlist[i]][msg.sender];
+        //         }
+        //         return portaddd;
+           
+        // }
+        
+        
     
     
 }
